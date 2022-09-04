@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	//"github.com/gps/server/models"
 	"github.com/gps/conf"
+	"github.com/gps/server/models"
 	"github.com/gps/server/routes"
 	//"gorm.io/driver/sqlite"
 	//"gorm.io/gorm"
@@ -32,6 +33,8 @@ func init() {
 	fmt.Println("Setting up...")
 	conf.Setup("conf/app.ini")
 	fmt.Println("Set up completed!")
+	conf.ConnectDatabase()
+	conf.DB.AutoMigrate(&models.User{}, &models.TextureSession{})
 }
 
 func main() {
