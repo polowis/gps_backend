@@ -1,0 +1,24 @@
+.container {
+    width: 400px;
+    margin: 0 auto;
+    padding: 10px 16px;
+}
+
+.h1 {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.input {
+    width: 100%;
+    border: 0px;
+    border-bottom: 1px solid #c3c0c0;
+    padding-bottom: 10px;
+    transition: all 200ms ease-out;
+}
+
+.input:focus {
+    border-bottom: 1px solid #8bc34a;
+    
+}

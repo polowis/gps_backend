@@ -1,9 +1,15 @@
-import type { NextPage } from 'next'
+import type { NextPage } from 'next';
+import TexturePlayground from '../components/canvas/TexturePlayground';
+import styles from './register.module.css';
 
-const RegisterPage: NextPage = () => {
+const RegisterPage: NextPage = (data) => {
     return (
-        <div>
-
+        <div className={styles['container']}>
+            <h1 className={styles['h1']}>Register Demo</h1>
+            <br/>
+            <input className={styles['input']} placeholder="Email"/>
+            <br/>
+            <TexturePlayground data={data}/>
         </div>
     )
 }
@@ -14,7 +20,7 @@ export async function getServerSideProps() {
     })
     const data = await res.json()
   
-    return { props: { data } }
+    return { props: { data: data.data } }
 }
 
 export default RegisterPage;
