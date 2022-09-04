@@ -56,5 +56,6 @@ func main() {
 	})
 
 	routes.RegisterAuthRoutes(r)
+	routes.RegisterAssetsRoutes(r)
 	r.Run(":8090")
 }
