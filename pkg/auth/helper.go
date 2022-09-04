@@ -21,14 +21,18 @@ type PWDTexture struct {
 }
 
 type Auth struct {
-	session string
-	folder  string // folder to storage texture
+	session        string
+	folder         string // folder to storage texture
+	TextureWidth   int
+	TextureHeight  int
 }
 
 func NewAuth() (*Auth) {
 	return &Auth{
 		session: NewSession(),
 		folder: FOLDER, // set as default
+		TextureWidth: WIDTH,
+		TextureHeight: HEIGHT,
 	}
 }
 

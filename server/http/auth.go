@@ -14,6 +14,8 @@ func GetTextureSample(ctx *gin.Context) {
 		"data": map[string]interface{}{
 			"session": authService.Session(),
 			"images": textures,
+			"width": authService.TextureWidth,
+			"height": authService.TextureHeight,
 		}, 
 		"success": false,
 	})
