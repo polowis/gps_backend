@@ -58,7 +58,7 @@ func (a *Auth) generateTextures(n int) []PWDTexture {
 		tex.Save(a.session, FOLDER) // save texture temporariy to storage
 
 		textureResponse := PWDTexture {
-			URL: fmt.Sprintf("%s/cdn/%s/%s.png", HOST, a.session, tex.Code()),
+			URL: fmt.Sprintf("%s/cdn/%s/%s", HOST, a.session, tex.Code()),
 			ID: tex.ID(),
 		}
 		textures[i] = textureResponse
