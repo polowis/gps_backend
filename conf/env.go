@@ -6,10 +6,11 @@ import (
 	"github.com/go-ini/ini"
 )
 
-type Enviroment struct {
+type Environment struct {
 	Storage       string
+	Key           string
 }
-var EnvironmentSetting = &Enviroment{}
+var EnvironmentSetting = &Environment{}
 
 var cfg *ini.File
 

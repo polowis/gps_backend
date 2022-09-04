@@ -2,8 +2,11 @@ package auth
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
+	"github.com/gps/conf"
 	"github.com/gps/pkg/texture"
 )
 
@@ -13,7 +16,6 @@ const WIDTH           = 16
 const FOLDER 		  = "./storage/sp" // storage folder to save texture
 const NUM_TEXTURE     = 20 // number of texture to generate
 const HOST            =  "http://localhost:8090" // hardcoded value for host url
-const KEY             = "hk34nfk1kj3s09z" // hardcoded value
 
 type PWDTexture struct {
 	URL  string `json:"url"` // image url
@@ -25,6 +27,7 @@ type Auth struct {
 	folder         string // folder to storage texture
 	TextureWidth   int
 	TextureHeight  int
+	SecretKey      string
 }
 
 func NewAuth() (*Auth) {
@@ -33,6 +36,7 @@ func NewAuth() (*Auth) {
 		folder: FOLDER, // set as default
 		TextureWidth: WIDTH,
 		TextureHeight: HEIGHT,
+		SecretKey: conf.EnvironmentSetting.Key,
 	}
 }
 
@@ -51,6 +55,24 @@ func (a *Auth) Session() string {
 	return a.session
 }
 
+func (a *Auth) shuffleTextures(textures []PWDTexture) []PWDTexture{
+	textureLength := len(textures)
+	rand.Seed(time.Now().UnixNano())
+
+	for i := textureLength -1; i > 0; i-- {
+             
+		// Pick a random index from 0 to i
+		j := rand.Intn(i + 1)
+		rand.Seed(time.Now().UnixNano())
+	
+		// Swap i with the element at random index
+		temp := textures[i];
+		textures[i] = textures[j];
+		textures[j] = temp;
+	}
+	return textures
+}
+
 /*
 Generate texture given number of texture to generate
 */
@@ -58,7 +80,7 @@ func (a *Auth) generateTextures(n int) []PWDTexture {
 	textures := make([]PWDTexture, n)
 	for i := 0; i < n; i++ {
 		tex := texture.NewTexture(HEIGHT, WIDTH)
-		tex.SetKey(KEY)
+		tex.SetKey(a.SecretKey)
 		tex.Save(a.session, FOLDER) // save texture temporariy to storage
 
 		textureResponse := PWDTexture {
@@ -67,12 +89,18 @@ func (a *Auth) generateTextures(n int) []PWDTexture {
 		}
 		textures[i] = textureResponse
 	}
+	textures = a.shuffleTextures(textures)
 
 	return textures
 	
 }
 
 
+/*
+Possibly future implementation
+After certain period, session will be invalidated, images are then removed from
+hard disk. 
+*/
 func (a *Auth) ClearSessionTexture(sessionId string) {
 	folder := fmt.Sprintf("%s/%s", FOLDER, sessionId)
 	err := os.RemoveAll(folder)
