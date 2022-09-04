@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -31,3 +32,12 @@ func TextToBinary(text rune) string {
 	fmt.Fprintf(&buffer, "%08b", text)
     return buffer.String()
 }
+
+func BinaryToHex(bin string) (string, error) {
+	ui, err := strconv.ParseUint(bin, 2, 64)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", ui), nil
+} 

@@ -16,13 +16,18 @@ var BLACK = color.RGBA{0, 0, 0, 255}
 type Texture interface {
 	Save(session string, folder string)
 	Dimension() int
+	SetKey(key string)
+	ID() string
+	SetCode(code string)
+	Code() string
 }
 
 type texture struct {
 	container
-	currentX int   // the current pixel x to map color
-	currentY int   // the current pixel y to map color
+	currentX int    // the current pixel x to map color
+	currentY int    // the current pixel y to map color
 	code     string // the code of texture
+	key      string // secret key
 }
 
 type container struct {
@@ -65,6 +70,11 @@ func (t *texture) generateCodeBinary(char rune) string {
 	return pwd.TextToBinary(char)
 }
 
+/*
+Set pixel color at x, y coordinates
+If flag is 0, pixel will be white
+flag is 1, pixel will be black
+*/
 func (t * texture) generatePixelColor(x int, y int, flag rune) {
 	if flag == '0' {
 		t.savePixel(x, y, WHITE)
@@ -75,6 +85,77 @@ func (t * texture) generatePixelColor(x int, y int, flag rune) {
 
 func (t *texture) mutateColor(x int, y int) {
 
+}
+
+/*
+Override texture code, unless necessary, do not use
+*/
+func (t *texture) SetCode(code string) {
+	t.code = code
+}
+
+/*
+Set app secret key
+*/
+func (t *texture) SetKey(key string) {
+	t.key = key
+}
+
+func sliceKey(key string) string {
+	return key[0:7]
+}
+
+func textToBinary(text string) string {
+	bin := ""
+	for _, c := range text {
+		binary := pwd.TextToBinary(c)
+		bin += binary
+	}
+
+	return bin
+}
+
+func XOR(a rune, b rune) rune {
+	if a == b {
+		return '0'
+	}
+	return '1'
+}
+
+/*
+Return ID of the texture, id is different from texture code
+*/
+func (t *texture) ID() string {
+	if len(t.key) < 7 {
+		panic("Key not long enough")
+	}
+
+	if len(t.code) < 7 {
+		panic("Code not initialized yet")
+	}
+	key := sliceKey(t.key)
+	keyBin := textToBinary(key)
+
+	textureCode := sliceKey(t.code) // slice to first 7 segment
+	textureBin := textToBinary(textureCode)
+
+	xorPattern := ""
+	for index, i := range keyBin {
+		xorResult := XOR(i, rune(textureBin[index]))
+		xorPattern += string(xorResult)
+	}
+	
+	id, err := pwd.BinaryToHex(xorPattern)
+	if err != nil {
+		panic(err)
+	}
+
+	return id
+	
+}
+
+func (t *texture) Code() string {
+	return t.code
 }
 
 

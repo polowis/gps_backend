@@ -12,6 +12,13 @@ const HEIGHT          = 16 // standard 16 pixels
 const WIDTH           = 16
 const FOLDER 		  = "./storage/sp" // storage folder to save texture
 const NUM_TEXTURE     = 20 // number of texture to generate
+const HOST            =  "http://localhost:8090" // hardcoded value for host url
+const KEY             = "hk34nfk1kj3s09z" // hardcoded value
+
+type PWDTexture struct {
+	URL  string `json:"url"` // image url
+	ID   string `json:"id"`  // texture id
+}
 
 type Auth struct {
 	session string
@@ -32,8 +39,8 @@ func (a *Auth) SetFolder(pathname string) {
 	a.folder = pathname
 }
 
-func (a *Auth) RegisterPWD() {
-	a.generateTextures(NUM_TEXTURE)
+func (a *Auth) RegisterPWD() []PWDTexture {
+	return a.generateTextures(NUM_TEXTURE)
 }
 
 func (a *Auth) Session() string {
@@ -43,11 +50,21 @@ func (a *Auth) Session() string {
 /*
 Generate texture given number of texture to generate
 */
-func (a *Auth) generateTextures(n int) {
+func (a *Auth) generateTextures(n int) []PWDTexture {
+	textures := make([]PWDTexture, n)
 	for i := 0; i < n; i++ {
 		tex := texture.NewTexture(HEIGHT, WIDTH)
-		tex.Save(a.session, FOLDER)
+		tex.SetKey(KEY)
+		tex.Save(a.session, FOLDER) // save texture temporariy to storage
+
+		textureResponse := PWDTexture {
+			URL: fmt.Sprintf("%s/cdn/%s/%s.png", HOST, a.session, tex.Code()),
+			ID: tex.ID(),
+		}
+		textures[i] = textureResponse
 	}
+
+	return textures
 	
 }
 

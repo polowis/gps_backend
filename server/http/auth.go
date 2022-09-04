@@ -9,6 +9,12 @@ import (
 
 func GetTextureSample(ctx *gin.Context) {
 	authService := auth.NewAuth()
-	authService.RegisterPWD()
-	ctx.JSON(http.StatusOK, gin.H{"data": authService.Session(), "success": false})
+	textures := authService.RegisterPWD()
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": map[string]interface{}{
+			"session": authService.Session(),
+			"images": textures,
+		}, 
+		"success": false,
+	})
 }
