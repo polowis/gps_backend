@@ -52,3 +52,23 @@ func Register(ctx *gin.Context) {
 	})
 
 }
+
+type RequestPhotoPhase struct {
+	Email string  `json:"email"`
+	Order string  `json:"order"`
+}
+
+// verify email and password to get photo signature
+func GetLoginPhotos(ctx *gin.Context) {
+	var verifyRequest RequestPhotoPhase
+	if err := ctx.BindJSON(&verifyRequest); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"data": map[string]interface{}{
+				"error": "Not allowed",
+				"success": false,
+			},
+		})
+	}
+	authService := auth.NewAuth()
+	authService.VerifyUser(verifyRequest.Email, verifyRequest.Order)
+}

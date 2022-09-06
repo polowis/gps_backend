@@ -10,4 +10,5 @@ func RegisterAuthRoutes(r *gin.Engine) {
 
 	authRoute.POST("texture", http.GetTextureSample)
 	authRoute.POST("register", http.Register)
+	authRoute.POST("verify", http.GetLoginPhotos)
 }

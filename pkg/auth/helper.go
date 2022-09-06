@@ -184,8 +184,21 @@ func (a *Auth) Register(request RegisterRequest) error {
 		panic(err) // need to rewrite
 	}
 
-	insertErr := CreateUser(request.Email, hashedOrders, *encryptedCoordinate)
+	insertErr := CreateUser(request.Email, hashedOrders, encryptedCoordinate)
 	return insertErr
+}
+
+func (a *Auth) VerifyUser(email string, orders string) {
+	var user models.User
+	orders = concatOrder(orders)
+	conf.DB.Where("email = ?", email).First(&user) // find by email
+	if HasHash(user.Password, orders) { // check if password match
+		text, err := Decrypt(user.Casting, orders) // decrypt coordinates
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(text)
+	}
 }
 
 /*
