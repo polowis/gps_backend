@@ -32,4 +32,23 @@ func Register(ctx *gin.Context) {
 			},
 		})
 	}
+	authService := auth.NewAuth()
+	err := authService.Register(registerRequest)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"data": map[string]interface{}{
+				"error": "Not allowed",
+				"success": false,
+			},
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": map[string]interface{}{
+			"redirect_url": "http://localhost:3000/success",
+			"success": true,
+		},
+	})
+
 }

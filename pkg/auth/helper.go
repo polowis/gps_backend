@@ -9,6 +9,7 @@ import (
 
 	"github.com/gps/conf"
 	"github.com/gps/pkg/texture"
+	"github.com/gps/server/models"
 )
 
 
@@ -172,7 +173,7 @@ func concatOrder(orders string) string {
 	return strings.Join(orderArray[:], "")
 }
 
-func (a *Auth) Register(request RegisterRequest) {
+func (a *Auth) Register(request RegisterRequest) error {
 	coordinates := concatCoordinates(request.Lines)
 	orders := concatOrder(request.Order)
 	// hash order to store inside db
@@ -183,7 +184,8 @@ func (a *Auth) Register(request RegisterRequest) {
 		panic(err) // need to rewrite
 	}
 
-	CreateUser(request.Email, hashedOrders, *encryptedCoordinate)
+	insertErr := CreateUser(request.Email, hashedOrders, *encryptedCoordinate)
+	return insertErr
 }
 
 /*
@@ -191,5 +193,11 @@ Except email
 Box order and coordinate must not be in plaintext
 Add user to database!
 */
-func CreateUser(email string, hashedOrder string, encryptedCoordinates string) {
+func CreateUser(email string, hashedOrder string, encryptedCoordinates string) error {
+	user := models.User{Email: email, Password: hashedOrder, Casting: encryptedCoordinates}
+	err := user.Create()
+	if err != nil {
+		return err
+	}
+	return nil
 }

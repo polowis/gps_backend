@@ -39,13 +39,33 @@ func HasHash(hashedPassword string, password string) bool {
 	return true
 }
 
+/*
+n = number of byte to fill
+*/
+func fillBytes(n int) string {
+	str := ""
+	for i := 0; i < n; i ++ {
+		str += "0"
+	}
+	return str
+}
 
 /*
 Encrypt text with secret key
 */
 func Encrypt(plainText string, secretkey string) (*string, error) {
+	if len(secretkey) < 32 { // needs to be 32 bytes
+		remainingBytes := 32 - len(secretkey)
+		bytesToFill := fillBytes(remainingBytes) // fill extra bytes
+		secretkey += bytesToFill
+	} else if len(secretkey) > 32 { // larger than 32 bytes
+		secretkey = secretkey[0:32] // slice string to 32 bytes
+	}
+
 	plaintext := []byte(plainText)
 	key := []byte(secretkey)
+	
+
     cipherBlock, err := aes.NewCipher(key)
     if err != nil {
         return nil, err
@@ -74,7 +94,7 @@ Decrypt text with key
 func Decrypt(cipherText string, secretKey string) (*string, error) {
 	ciphertext := []byte(cipherText)
 	key := []byte(secretKey)
-	
+
     cipherBlock, err := aes.NewCipher(key)
     if err != nil {
         return nil, err
