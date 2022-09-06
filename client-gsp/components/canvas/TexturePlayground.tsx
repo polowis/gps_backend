@@ -1,105 +1,136 @@
 import React from 'react';
 import styles from './playground.module.css';
 import PropTypes from 'prop-types';
+import { Stage, Layer, Line } from 'react-konva';
+import { KonvaEventObject } from 'konva/lib/Node';
+import Button from '../Button';
 
-interface ImageLoad {
-    img: HTMLImageElement;
-    loaded: boolean;
-}
+const DrawArea = React.forwardRef((props, ref)=> {
+    const [lines, setLines] = React.useState<Array<{points: Array<number>, tool: String}>>([]);
+    const isDrawing = React.useRef(false);
 
-const TexturePlayground = function({data}: any) {
-    const canvasRef = React.useRef<HTMLCanvasElement>(null);
-    const boardWidth = 300;
-    const boardHeight = 250;
-    const images: {
-        [id: string]: ImageLoad
-    } = {};
+    React.useImperativeHandle(ref, () => ({
 
-    /**
-     * 
-     * @param {*} key - the key of the image to be accessed later on, duplicate key will override
-     * @param {*} filePath - the path to image file can be remote url
-     */
-    const loadImage = (key: string, filePath: string) => {
-        const img = new window.Image();
-        images[key] = {
-            "img": img,
-            "loaded": false
+        clearLines() {
+            setLines([]);
+        },
+
+        getLines() {
+            return lines
         }
-        img.addEventListener("load", function () {
-            images[key].img = img;
-            images[key].loaded = true;
-        });
-        img.setAttribute("src", filePath)
-    }
-
-    /**
-     * Get image by key
-     * @param {*} key 
-     */
-    const getImage = (key: string) => {
-        return images[key].img;
-    }
-
-    const setup = () => {
-        data.data.images.forEach((item: any) => {
-            loadImage(item.id, item.url)
-        })
-    }
-
-    const drawImages = (ctx: CanvasRenderingContext2D) => {
-        let x: number = 0;
-        let scale = 64; // 5 image per row, 16px * 5 = 320px, 
-        //canvas fixed width = 400px - padding 16 * 2 = 368
-        let padding = (368 - 320) / 5
-        for(const [key, obj] of Object.entries(images)) {
-            ctx.drawImage(images[key].img, x, 0, 64, 64)
-            x += scale + padding;
-        }
-    }
-
-    React.useEffect(() => {
-        setup();
-        if (canvasRef.current) {
-            const canvas: HTMLCanvasElement = canvasRef.current
-            const context: CanvasRenderingContext2D|null = canvas.getContext('2d')
-
-            if (!context) {
-                return
+    
+    }));
+    
+    const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
+        isDrawing.current = true;
+        const evt = e.target.getStage()
+        if (evt) {
+            const pos = evt.getPointerPosition();
+            if (pos) {
+                setLines([...lines, { points: [pos.x, pos.y], tool: "" }]);
             }
-
-            //Our first draw
-            canvas.style.width ='100%';
-            canvas.style.height='100%';
-            // ...then set the internal size to match
-            canvas.width  = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight + 100;
-
-            const render = () => {
-                context.fillStyle = '#000000'
-                context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                let loaded = true;
-                for(const [key, obj] of Object.entries(images)) {
-                    if (!obj.loaded) {
-                        loaded = false
-                        break
-                    }
-                }
-                if (loaded) {
-                    drawImages(context)
-                }
-                requestAnimationFrame(render);
-            }
-            render();
+            
         }
-       
         
-    })
+    };
+    
+    const handleMouseMove = (e: KonvaEventObject<MouseEvent>) => {
+        // no drawing - skipping
+        if (!isDrawing.current) {
+          return;
+        }
+        const stage = e.target.getStage();
+        if (!stage) {
+            return
+        }
+        const point = stage.getPointerPosition();
+        if (!point) {
+            return
+        }
+    
+        // To draw line
+        let lastLine = lines[lines.length - 1];
+        
+        if(lastLine) {
+            // add point
+            lastLine.points = lastLine.points.concat([point.x, point.y]);
+                
+            // replace last
+            lines.splice(lines.length - 1, 1, lastLine);
+            setLines(lines.concat());
+        }
+        
+    };
+    
+    const handleMouseUp = () => {
+        isDrawing.current = false;
+    };
 
     return (
-        <div className={styles['canvas']}>
-            <canvas ref={canvasRef}/>
+        <div className=" text-center text-dark">
+            <Stage
+                width={300}
+                height={300}
+                onMouseDown={handleMouseDown}
+                onMousemove={handleMouseMove}
+                onMouseup={handleMouseUp}
+                className="canvas-stage"
+            >
+                <Layer>
+                    {lines.map((line, i) => (
+                        <Line
+                        key={i}
+                        points={line.points}
+                        stroke="#df4b26"
+                        strokeWidth={2}
+                        tension={0.5}
+                        lineCap="round"
+                        globalCompositeOperation={
+                            line.tool === 'eraser' ? 'destination-out' : 'source-over'
+                        }
+                        />
+                    ))}
+                </Layer>
+            </Stage>
         </div>
+    )
+})
+
+type PlaygroundProps = {
+    onSave: React.MouseEventHandler<HTMLDivElement>
+};
+
+const TexturePlayground = function({onSave}: PlaygroundProps) {
+    const drawingRef = React.useRef();
+
+    const handleEraseButton = () => {
+        if (drawingRef.current) {
+            drawingRef.current.clearLines() // clear canvas
+        }
+        
+    }
+
+    const handleSaveButton = () => {
+        if (drawingRef.current) {
+            const lines = drawingRef.current.getLines()
+            onSave(lines)
+        }
+    }
+    
+    return (
+        <React.Fragment>
+            <div className={styles['helper-title']}>
+                Draw your login signature! This can be whatever you find that represent yourself.
+            </div>
+            <div className={styles['action-row']}>
+                <Button onClick={handleEraseButton}>Erase</Button>
+                <Button onClick={() => handleSaveButton()}>Save</Button>
+            </div>
+            
+            <div className={styles['area']}>
+                <DrawArea ref={drawingRef}/>
+             </div>
+        </React.Fragment>
     )
 }
 

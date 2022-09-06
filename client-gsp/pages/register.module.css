@@ -2,6 +2,7 @@
     width: 400px;
     margin: 0 auto;
     padding: 10px 16px;
+    position: relative;
 }
 
 .h1 {
@@ -21,4 +22,11 @@
 .input:focus {
     border-bottom: 1px solid #8bc34a;
     
+}
+
+.error {
+    font-size: 1em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #ff5722;
 }

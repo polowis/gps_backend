@@ -1,0 +1,28 @@
+.b {
+    width: 350px;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+    margin: 0 auto;
+}
+.container > span {
+    width: 60px !important;
+    margin: 3px !important;
+    margin-top: 10px !important;
+    border: 3px solid transparent !important;
+}
+
+.container > span:hover {
+    border: 3px solid #2196f3 !important;
+}
+
+.result {
+    width: 100%;
+    word-break: break-word;
+}
+
+.choose-title {
+    text-align: center;
+    margin: 20px 0;
+    color: #e91e63;
+}

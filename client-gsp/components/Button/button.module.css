@@ -1,0 +1,15 @@
+.button {
+    cursor: pointer;
+    background-color: #3f51b5;
+    width: fit-content;
+    padding: 10px 16px;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.button:hover {
+    opacity: 0.8;
+}
