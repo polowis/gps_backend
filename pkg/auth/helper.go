@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gps/conf"
@@ -28,6 +29,18 @@ type Auth struct {
 	TextureWidth   int
 	TextureHeight  int
 	SecretKey      string
+}
+
+type LineRequest struct {
+	Points []float32  `json:"points"`
+	Tool   string `json:"tool"`
+}
+
+type RegisterRequest struct {
+	Lines 	[]LineRequest `json:"lines"` // canvas x,y coordinate
+	Order 	string  `json:"order"` // box order specification split by _ (underscore)
+	Email   string  `json:"email"` // email of user
+	Session string 	`json:"session"` // the session of this request
 }
 
 func NewAuth() (*Auth) {
@@ -116,4 +129,67 @@ func (a *Auth) ClearSessionTexture(sessionId string) {
 			panic(err)
 		}
 	}*/
+}
+
+func roundup(n float32) int{
+	return int( n +0.5) 
+}
+
+/*
+
+*/
+func normalizeCoordinates(line LineRequest) string {
+	str := ""
+	for idx, point := range line.Points {
+		p := roundup(point)
+		if idx == 0 { // first inital point
+			str += fmt.Sprintf("%d", p)
+		} else {
+			str += fmt.Sprintf("%d_", p) // split point by underscore
+		}
+	}
+	return str
+}
+
+func concatCoordinates(lines []LineRequest) string {
+	str := ""
+	for idx, line := range lines {
+		points := normalizeCoordinates(line)
+		if idx == 0 {
+			str += points
+		} else {
+			str += fmt.Sprintf("%s;", points) // split by semicolon
+		}
+	}
+	return str
+}
+
+/*
+Remove underscore, concat them all
+*/
+func concatOrder(orders string) string {
+	orderArray := strings.Split(orders, "_")
+	return strings.Join(orderArray[:], "")
+}
+
+func (a *Auth) Register(request RegisterRequest) {
+	coordinates := concatCoordinates(request.Lines)
+	orders := concatOrder(request.Order)
+	// hash order to store inside db
+	
+	hashedOrders := Hash(orders)
+	encryptedCoordinate, err := Encrypt(coordinates, orders)
+	if err != nil {
+		panic(err) // need to rewrite
+	}
+
+	CreateUser(request.Email, hashedOrders, *encryptedCoordinate)
+}
+
+/*
+Except email
+Box order and coordinate must not be in plaintext
+Add user to database!
+*/
+func CreateUser(email string, hashedOrder string, encryptedCoordinates string) {
 }

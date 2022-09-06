@@ -9,4 +9,5 @@ func RegisterAuthRoutes(r *gin.Engine) {
 	authRoute := r.Group("/auth")
 
 	authRoute.POST("texture", http.GetTextureSample)
+	authRoute.POST("register", http.Register)
 }

@@ -17,6 +17,19 @@ func GetTextureSample(ctx *gin.Context) {
 			"width": authService.TextureWidth,
 			"height": authService.TextureHeight,
 		}, 
-		"success": false,
+		"success": true,
 	})
+}
+
+func Register(ctx *gin.Context) {
+	var registerRequest auth.RegisterRequest
+
+	if err := ctx.BindJSON(&registerRequest); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"data": map[string]interface{}{
+				"error": "Not allowed",
+				"success": false,
+			},
+		})
+	}
 }

@@ -47,9 +47,17 @@ const RegisterPage: NextPage = (data: any) => {
         const APIRequest = {
             "order": savedOrder,
             "lines": lines,
+            "email": email,
             "session": session
         }
-        console.log(APIRequest)
+        fetch(`${process.env.NEXT_PUBLIC_API_HOST}/auth/register`, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(APIRequest)
+        })
     }
     return (
         <div className={styles['container']}>
@@ -75,7 +83,11 @@ const RegisterPage: NextPage = (data: any) => {
 
 export async function getServerSideProps() {
     const res: Response = await fetch(`${process.env.API_HOST}/auth/texture`, {
-        method: "POST"
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
     })
     const data = await res.json()
   
