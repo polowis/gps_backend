@@ -198,11 +198,15 @@ func xorString(textA string, textB string) string {
 }
 
 const UNDERSCORE_BINARY = "01011111"
+const UNDERSCORE_HEX    = 95
 const SEMICOLON_BINARY  = "00111011"
+const SEMICOLON_HEX     = 59
 
 /*
 Plaintext to encrypt
 Key - secret key
+
+return BINARY
 */
 func EncryptXOR(plaintext string, key string) string {
 	keyBinary := textToBinary(key)
@@ -245,12 +249,18 @@ func DecryptXOR(cipherBinary string, key string) string {
 	for i := 0; i < len(cipherBinaryGroup); i++ {
 		keyPos := i % keyBinaryGroupLength // return back to index to if finish the loop
 		// only for key, not plaintext!
-
-		if hasSkippedCharacter(cipherBinaryGroup[i]) {
-			finalResult += cipherBinaryGroup[i] // skip underscore binary in plaintext
-			continue
+		var xorResult string
+		decimal, _ := BinaryToDecimal(cipherBinaryGroup[i])
+		if decimal == UNDERSCORE_HEX {  // DO NOT XOR
+			// if decimal is underscore or semicolon
+			xorResult = "_"
+		} else if decimal == SEMICOLON_HEX {
+			xorResult = ";"
+		} else { // do xor calc if not underscore or
+			xorResult = xorString(cipherBinaryGroup[i], keyBinaryGroup[keyPos])
+			decimal, _ = BinaryToDecimal(xorResult) // convert to decimal after xor to get original number
+			xorResult = string(rune(decimal)) // 
 		}
-		xorResult := xorString(cipherBinaryGroup[i], keyBinaryGroup[keyPos])
 
 		finalResult += xorResult
 	}
@@ -258,7 +268,7 @@ func DecryptXOR(cipherBinary string, key string) string {
 }
 
 func hasSkippedCharacter(binary string) bool {
-	return binary == UNDERSCORE_BINARY  || binary == SEMICOLON_BINARY
+	return binary == UNDERSCORE_BINARY || binary == SEMICOLON_BINARY
 }
 
 func Base64Encode(text string) (response string){
@@ -290,6 +300,14 @@ func BinaryToHex(text string) (string, error) {
 	}
 
     return result, nil
+}
+
+func BinaryToDecimal(bin string) (int64, error) {
+	if i, err := strconv.ParseInt(bin, 2, 64); err != nil {
+		return 0, err
+	} else {
+		return i, nil
+	}
 }
 
 /*
