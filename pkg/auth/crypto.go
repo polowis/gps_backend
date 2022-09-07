@@ -291,3 +291,15 @@ func BinaryToHex(text string) (string, error) {
 
     return result, nil
 }
+
+/*
+Convert hexadecimal to binary
+*/
+func HexToBinary(text string) (string, error) {
+	i, err := strconv.ParseUint(text, 16, 32)
+	if err != nil {
+		return "", err
+	}
+	bin := fmt.Sprintf("%08b", i)
+	return bin, nil
+}

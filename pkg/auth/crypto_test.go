@@ -101,6 +101,15 @@ func TestEncryptBinaryHex(t *testing.T) {
 	fmt.Println(result)
 }
 
+func TestDecryptBinaryHex(t *testing.T) {
+	str := "00000011"
+	hex, _ := BinaryToHex(str)
+	bin, _ := HexToBinary(hex)
+	if bin != str {
+		t.Fatalf("cant decode hex")
+	}
+}
+
 
 func TestEncryptXORWithHex(t *testing.T) {
 	plaintext := "20_35;1_2"
@@ -112,6 +121,7 @@ func TestEncryptXORWithHex(t *testing.T) {
 	}
 	expectedHex := "03035f06033b005f06" //"335f633b05f6"
 	hexcipher, err := BinaryToHex(ciphertext)
+
 	if err != nil {
 		t.Fatal(err)
 	}
