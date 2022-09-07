@@ -179,10 +179,7 @@ func (a *Auth) Register(request RegisterRequest) error {
 	// hash order to store inside db
 	
 	hashedOrders := Hash(orders)
-	encryptedCoordinate, err := Encrypt(coordinates, orders)
-	if err != nil {
-		panic(err) // need to rewrite
-	}
+	encryptedCoordinate := EncryptCoordinates(coordinates, orders)
 
 	insertErr := CreateUser(request.Email, hashedOrders, encryptedCoordinate)
 	return insertErr

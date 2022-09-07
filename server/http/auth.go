@@ -44,6 +44,8 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
+	authService.ClearSessionTexture(registerRequest.Session)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": map[string]interface{}{
 			"redirect_url": "http://localhost:3000/success",
