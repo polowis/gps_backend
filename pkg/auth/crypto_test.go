@@ -91,6 +91,16 @@ func TestEncryptSimpleXORWithBase64(t *testing.T) {
 	}
 }
 
+func TestEncryptBinaryHex(t *testing.T) {
+	str := "00000011"
+	result, err := BinaryToHex(str)
+	if err != nil {
+		t.Fatalf("cant encode hex")
+	}
+
+	fmt.Println(result)
+}
+
 
 func TestEncryptXORWithHex(t *testing.T) {
 	plaintext := "20_35;1_2"
@@ -100,12 +110,11 @@ func TestEncryptXORWithHex(t *testing.T) {
 	if ciphertext != expected {
 		t.Fatalf("xor result not match!")
 	}
-	expectedHex := "335f633b05f6"
+	expectedHex := "03035f06033b005f06" //"335f633b05f6"
 	hexcipher, err := BinaryToHex(ciphertext)
 	if err != nil {
 		t.Fatal(err)
 	}
-	
 	if hexcipher != expectedHex {
 		t.Fatalf("hex result not matched!")
 	}

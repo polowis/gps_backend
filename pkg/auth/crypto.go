@@ -40,10 +40,7 @@ Compare hashed password in database with plaintext password
 func HasHash(hashedPassword string, password string) bool {
 	//Comparing the password with the hash
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	if err != nil { // password not match
-		return false
-	}
-	return true
+	return err == nil
 }
 
 /*
@@ -285,6 +282,10 @@ func BinaryToHex(text string) (string, error) {
 			return "", err
 		}
 		hexcipher := fmt.Sprintf("%x", ui)
+		if len(hexcipher) == 1 { 
+			// only 1 number avilable, ideally we want 2 so FF can become 255 (8bit)
+			result += "0" // add leading 0 in bit
+		}
 		result += hexcipher
 	}
 
