@@ -6,6 +6,8 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
+	"strconv"
 
 	//"encoding/hex"
 	///"errors"
@@ -201,7 +203,11 @@ func xorString(textA string, textB string) string {
 const UNDERSCORE_BINARY = "01011111"
 const SEMICOLON_BINARY  = "00111011"
 
-func EncryptXOR(key string, plaintext string) {
+/*
+Plaintext to encrypt
+Key - secret key
+*/
+func EncryptXOR(plaintext string, key string) string {
 	keyBinary := textToBinary(key)
 	plaintextBinary := textToBinary(plaintext)
 
@@ -216,7 +222,7 @@ func EncryptXOR(key string, plaintext string) {
 		keyPos := i % keyBinaryGroupLength // return back to index to if finish the loop
 		// only for key, not plaintext!
 
-		if plaintextBinaryGroup[i] == UNDERSCORE_BINARY {
+		if hasSkippedCharacter(plaintextBinaryGroup[i]) {
 			finalResult += plaintextBinaryGroup[i] // skip underscore binary in plaintext
 			continue
 		}
@@ -224,8 +230,63 @@ func EncryptXOR(key string, plaintext string) {
 
 		finalResult += xorResult
 	}
+	return finalResult
 
-	
+}
 
+/*
+Ciphertext must be in binary format
+*/
+func DecryptXOR(cipherBinary string, key string) string {
+	keyBinary := textToBinary(key)
+	keyBinaryGroup := groupBinary(keyBinary, 8)
+	cipherBinaryGroup := groupBinary(cipherBinary, 8)
+	keyBinaryGroupLength := len(keyBinaryGroup)
 
+	finalResult := ""
+
+	for i := 0; i < len(cipherBinaryGroup); i++ {
+		keyPos := i % keyBinaryGroupLength // return back to index to if finish the loop
+		// only for key, not plaintext!
+
+		if hasSkippedCharacter(cipherBinaryGroup[i]) {
+			finalResult += cipherBinaryGroup[i] // skip underscore binary in plaintext
+			continue
+		}
+		xorResult := xorString(cipherBinaryGroup[i], keyBinaryGroup[keyPos])
+
+		finalResult += xorResult
+	}
+	return finalResult
+}
+
+func hasSkippedCharacter(binary string) bool {
+	return binary == UNDERSCORE_BINARY  || binary == SEMICOLON_BINARY
+}
+
+func Base64Encode(text string) (response string){
+	return base64.StdEncoding.EncodeToString([]byte(text))
+}
+
+func Base64Decode(text string) (response string) {
+	res, err := base64.StdEncoding.DecodeString(text)
+	if err != nil {
+		return "" // cant decode, fall back to default ""
+	}
+	return string(res)
+}
+
+func BinaryToHex(text string) (string, error) {
+	binArray := groupBinary(text, 8)
+	result := ""
+	for _, bin := range binArray {
+		ui, err := strconv.ParseUint(bin, 2, 64)
+		if err != nil {
+			return "", err
+		}
+		hexcipher := fmt.Sprintf("%x", ui)
+		result += hexcipher
+	}
+
+    return result, nil
 }
