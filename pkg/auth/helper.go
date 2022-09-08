@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -197,12 +198,21 @@ func (a *Auth) Register(request RegisterRequest) error {
 	// hash order to store inside db
 	
 	hashedOrders := Hash(orders)
+	fmt.Println(coordinates)
 	encryptedCoordinate := EncryptCoordinates(coordinates, orders)
 
 	insertErr := CreateUser(request.Email, hashedOrders, encryptedCoordinate)
 	return insertErr
 }
 
+func randomUsers(excludeEmail string) []models.User {
+	var users []models.User
+	// not optimal DO NOT USE. ONLY FOR TESTING
+	query := `SELECT * FROM users where email != ? ORDER BY RANDOM() LIMIT 10`
+   	conf.DB.Raw(query, excludeEmail).Scan(&users)
+   	return users
+
+}
 /*
 This function must not tell whether the user password is correct
 
@@ -216,6 +226,14 @@ func (a *Auth) VerifyUser(email string, orders string, session string) {
 		photo := texture.NewPhoto(text)
 		photo.GeneratePhoto()
 		photo.Save(session, VERIFY_FOLDER, "1")
+	}
+	users := randomUsers(email)
+	for idx, user := range users {
+		text := DecryptCoordinates(user.Casting, orders) // decrypt coordinates
+		photo := texture.NewPhoto(text)
+		photo.GeneratePhoto()
+		photo.Smoothen()
+		photo.Save(session, VERIFY_FOLDER, strconv.Itoa(idx + 10))
 	}
 }
 
