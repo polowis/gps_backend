@@ -41,7 +41,8 @@ const LoginPage: NextPage = (data: any) => {
     const sendVerifyRequest = (orders: any) => {
         const APIRequest = {
             "email": email,
-            "order": orders
+            "order": orders,
+            "session": session
         }
         
         fetch(`${process.env.NEXT_PUBLIC_API_HOST}/auth/verify`, {
