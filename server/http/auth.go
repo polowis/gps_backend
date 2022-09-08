@@ -56,8 +56,9 @@ func Register(ctx *gin.Context) {
 }
 
 type RequestPhotoPhase struct {
-	Email string  `json:"email"`
-	Order string  `json:"order"`
+	Email   string  `json:"email"`
+	Order   string  `json:"order"`
+	Session string `json:"session"`
 }
 
 // verify email and password to get photo signature
@@ -73,4 +74,5 @@ func GetLoginPhotos(ctx *gin.Context) {
 	}
 	authService := auth.NewAuth()
 	authService.VerifyUser(verifyRequest.Email, verifyRequest.Order)
+	authService.ClearSessionTexture(verifyRequest.Session)
 }
