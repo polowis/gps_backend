@@ -73,6 +73,6 @@ func GetLoginPhotos(ctx *gin.Context) {
 		})
 	}
 	authService := auth.NewAuth()
-	authService.VerifyUser(verifyRequest.Email, verifyRequest.Order)
+	authService.VerifyUser(verifyRequest.Email, verifyRequest.Order, verifyRequest.Session)
 	authService.ClearSessionTexture(verifyRequest.Session)
 }
