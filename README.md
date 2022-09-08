@@ -5,7 +5,16 @@
 
 ### Installation
 1. Download required depedencies
-```go mod download```
-2. Start the server
-```go run main.go```
+```bash
+go mod download
+```
+2. Manually create SQLite Database
+```bash
+touch test.db
+```
+3. Start the server
+```bash
+go run main.go
+```
+The server will be running on port 8090
 

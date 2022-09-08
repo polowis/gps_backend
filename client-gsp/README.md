@@ -17,3 +17,5 @@ npm run dev
 # or
 yarn dev
 ```
+
+4. Go to http://localhost:3000 to view the website

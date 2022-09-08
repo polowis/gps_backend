@@ -58,8 +58,8 @@ const RegisterPage: NextPage = (data: any) => {
             },
             body: JSON.stringify(APIRequest)
         }).then(res => res.json()).then(result => {
-            if (result.success) {
-                window.location.href = result.redirect_url
+            if (result.data.success) {
+                window.location.href = result.data.redirect_url
             }
         })
     }
