@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	Email 	 string
-	Password string
-	Casting  string
+	gorm.Model      // standard fields
+	Email 	 string // user email
+	Password string // box order must be hashed
+	Casting  string // coordinate drawing must be encoded
 }
 
 func (u *User) Create() error {

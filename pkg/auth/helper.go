@@ -137,30 +137,41 @@ func roundup(n float32) int{
 }
 
 /*
-
+x and y coordinate are concat into x_y format
 */
 func normalizeCoordinates(line LineRequest) string {
 	str := ""
 	for idx, point := range line.Points {
 		p := roundup(point)
+		if idx % 2 == 0 { // x coordinate
+			str += fmt.Sprintf(";%d", p) // add semicolon to the start
+		} else if idx % 2 == 1 { // y coordinate
+			str += fmt.Sprintf("_%d", p) // split point by underscore
+		}
+		/*
 		if idx == 0 { // first inital point
 			str += fmt.Sprintf("%d", p)
 		} else {
-			str += fmt.Sprintf("%d_", p) // split point by underscore
-		}
+			str += fmt.Sprintf("_%d", p) // split point by underscore
+		}*/
 	}
 	return str
 }
 
+/*
+Continuous Coordinates are concat to a string split by semicolon
+*/
 func concatCoordinates(lines []LineRequest) string {
 	str := ""
 	for idx, line := range lines {
 		points := normalizeCoordinates(line)
-		if idx == 0 {
-			str += points
-		} else {
-			str += fmt.Sprintf("%s;", points) // split by semicolon
+		if idx == 0 { // first initial coordinate strip out 0
+			points = points[1:]
 		}
+		str += points
+		/*else {
+			str += fmt.Sprintf("%s;", points) // split by semicolon
+		}*/
 	}
 	return str
 }
@@ -173,6 +184,12 @@ func concatOrder(orders string) string {
 	return strings.Join(orderArray[:], "")
 }
 
+/*
+Register the user to db
+
+The function will hash order and do all encryption methods
+@return error
+*/
 func (a *Auth) Register(request RegisterRequest) error {
 	coordinates := concatCoordinates(request.Lines)
 	orders := concatOrder(request.Order)
@@ -185,15 +202,16 @@ func (a *Auth) Register(request RegisterRequest) error {
 	return insertErr
 }
 
+/*
+This function must not tell whether the user password is correct
+
+*/
 func (a *Auth) VerifyUser(email string, orders string) {
 	var user models.User
 	orders = concatOrder(orders)
 	conf.DB.Where("email = ?", email).First(&user) // find by email
 	if HasHash(user.Password, orders) { // check if password match
-		text, err := Decrypt(user.Casting, orders) // decrypt coordinates
-		if err != nil {
-			panic(err)
-		}
+		text := DecryptCoordinates(user.Casting, orders) // decrypt coordinates
 		fmt.Println(text)
 	}
 }
