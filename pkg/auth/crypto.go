@@ -259,7 +259,11 @@ func DecryptXOR(cipherBinary string, key string) string {
 		} else { // do xor calc if not underscore or
 			xorResult = xorString(cipherBinaryGroup[i], keyBinaryGroup[keyPos])
 			decimal, _ = BinaryToDecimal(xorResult) // convert to decimal after xor to get original number
-			xorResult = string(rune(decimal)) // 
+			xorResult = string(rune(decimal))
+			if _, err := strconv.Atoi(xorResult); err != nil {
+				// if result is not a decimal convertible
+				xorResult = strconv.FormatInt(decimal, 10) // fall back to only number
+			} 
 		}
 
 		finalResult += xorResult
