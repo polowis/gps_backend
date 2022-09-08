@@ -18,6 +18,7 @@ const WIDTH           = 16
 const FOLDER 		  = "./storage/sp" // storage folder to save texture
 const NUM_TEXTURE     = 20 // number of texture to generate
 const HOST            =  "http://localhost:8090" // hardcoded value for host url
+const VERIFY_FOLDER   = "./storage/verify" // storage folder hold image for verify
 
 type PWDTexture struct {
 	URL  string `json:"url"` // image url
@@ -206,13 +207,15 @@ func (a *Auth) Register(request RegisterRequest) error {
 This function must not tell whether the user password is correct
 
 */
-func (a *Auth) VerifyUser(email string, orders string) {
+func (a *Auth) VerifyUser(email string, orders string, session string) {
 	var user models.User
 	orders = concatOrder(orders)
 	conf.DB.Where("email = ?", email).First(&user) // find by email
 	if HasHash(user.Password, orders) { // check if password match
 		text := DecryptCoordinates(user.Casting, orders) // decrypt coordinates
-		fmt.Println(text)
+		photo := texture.NewPhoto(text)
+		photo.GeneratePhoto()
+		photo.Save(session, VERIFY_FOLDER, "1")
 	}
 }
 
